@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SISOL — Supervisión Tópico de Urgencia 2025</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a1a;font-size:14px}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+.sisol-header{background:#fff;border-radius:12px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+.sisol-top{background:#0F6E56;padding:16px 24px;display:flex;align-items:center;gap:16px}
+.sisol-logo{width:52px;height:52px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sisol-org{font-size:14px;font-weight:700;color:#fff;letter-spacing:.02em;line-height:1.3}
+.sisol-sub{font-size:10px;color:rgba(255,255,255,.65);margin-top:3px;letter-spacing:.05em;text-transform:uppercase}
+.sisol-doc{font-size:12px;color:rgba(255,255,255,.8);margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.15)}
+.sisol-bottom{padding:8px 24px;background:#f0f7f4;border-top:1px solid #d0e8df;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.sisol-meta{font-size:11px;color:#555}
+.sisol-meta b{color:#0F6E56}
+.action-bar{background:#fff;border-radius:10px;padding:12px 18px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px}
+.btn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{padding:9px 16px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .12s;font-family:inherit;white-space:nowrap}
+.btn svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}
+.btn-save{background:#1D9E75;color:#fff}
+.btn-save:hover{background:#0F6E56}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+.btn-send{background:#7c3aed;color:#fff}
+.btn-send:hover{background:#6d28d9}
+.btn-send:disabled{opacity:.5;cursor:not-allowed}
+.btn-print{background:#1a56db;color:#fff}
+.btn-print:hover{background:#1344b5}
+.btn-print:disabled{opacity:.5;cursor:not-allowed}
+.status-pill{font-size:11px;padding:5px 11px;border-radius:20px;display:none;font-weight:500}
+.status-pill.ok{background:#E1F5EE;color:#0F6E56;display:inline-flex;align-items:center;gap:4px}
+.status-pill.err{background:#FCEBEB;color:#A32D2D;display:inline-flex;align-items:center;gap:4px}
+.status-pill.info{background:#EBF5FB;color:#1a56db;display:inline-flex;align-items:center;gap:4px}
+.meta-card{background:#fff;border-radius:10px;padding:18px 22px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card-title{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.meta-grid.four{grid-template-columns:80px 1fr 1fr 1fr}
+.meta-grid.two{grid-template-columns:1fr 1fr;margin-bottom:0}
+.field-group{display:flex;flex-direction:column;gap:4px}
+.field-group label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em}
+.field-group input,.field-group select{font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#111;width:100%;font-family:inherit}
+.field-group input:focus{outline:none;border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.ficha-num{font-size:22px;font-weight:700;color:#0F6E56;padding:6px 10px;border:2px solid #1D9E75;border-radius:8px;background:#E1F5EE;text-align:center;min-width:60px}
+.role-selector{display:flex;gap:5px}
+.role-btn{flex:1;padding:8px 4px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#777;font-size:11px;cursor:pointer;transition:all .12s;font-family:inherit;font-weight:500}
+.role-btn.active{border-color:#1D9E75;background:#E1F5EE;color:#0F6E56;font-weight:700}
+.section-card{background:#fff;border-radius:10px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;cursor:pointer;user-select:none;background:#fafafa;border-bottom:1px solid #eee}
+.section-header-left{display:flex;align-items:center;gap:10px}
+.sec-num{width:26px;height:26px;border-radius:50%;background:#0F6E56;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-title{font-size:13px;font-weight:600;color:#111}
+.sec-count{font-size:11px;color:#bbb}
+.sec-badge{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:700}
+.sec-body{padding:0 18px 16px;display:none}
+.sec-body.open{display:block}
+.item-row{padding:9px 0;border-bottom:1px solid #f2f2f2;display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:start}
+.item-row:last-of-type{border-bottom:none}
+.item-num{font-size:11px;color:#ccc;padding-top:3px;font-weight:700}
+.item-text{font-size:13px;color:#222;line-height:1.5;padding-top:2px}
+.item-norma{font-size:10px;color:#c0c0c0;margin-top:4px;font-style:italic;line-height:1.4}
+.toggle-group{display:flex;gap:3px;flex-shrink:0}
+.tb{width:40px;height:28px;border-radius:6px;border:1px solid #ddd;background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:#aaa;transition:all .1s;font-family:inherit}
+.tb:hover{border-color:#999;background:#f8f8f8}
+.tb.yes.active{background:#E1F5EE;border-color:#1D9E75;color:#0F6E56}
+.tb.no.active{background:#FCEBEB;border-color:#E24B4A;color:#A32D2D}
+.tb.na.active{background:#FAEEDA;border-color:#EF9F27;color:#854F0B}
+.obs-area{grid-column:2/-1}
+.obs-input{width:100%;margin-top:5px;font-size:11px;padding:6px 8px;border:1px solid #e8e8e8;border-radius:5px;background:#fffef5;color:#333;resize:none;display:none;font-family:inherit}
+.results-panel{background:#fff;border-radius:10px;padding:20px 22px;margin-top:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.res-title{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+.global-row{display:flex;align-items:flex-end;gap:16px;margin-bottom:10px}
+.global-pct{font-size:44px;font-weight:700;line-height:1;color:#1D9E75}
+.global-info{padding-bottom:6px}
+.global-lbl{font-size:11px;color:#aaa;margin-bottom:5px}
+.calificacion{display:inline-block;font-size:12px;padding:4px 12px;border-radius:6px;font-weight:700;background:#E1F5EE;color:#0F6E56;border:1px solid #1D9E75}
+.global-bar{height:10px;border-radius:5px;background:#eee;overflow:hidden;margin-bottom:16px}
+.global-fill{height:100%;border-radius:5px;transition:width .4s;background:#1D9E75}
+.sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px}
+.sec-item{background:#f8faf9;border-radius:8px;padding:10px 12px;border:1px solid #eee}
+.sec-item-title{font-size:10px;color:#999;margin-bottom:5px;line-height:1.3;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.sec-item-row{display:flex;align-items:center;gap:8px}
+.sec-pct{font-size:18px;font-weight:700;min-width:40px}
+.sec-bar{flex:1;height:5px;border-radius:3px;background:#e0e0e0;overflow:hidden}
+.sec-fill{height:100%;border-radius:3px;transition:width .4s}
+.chev{font-size:11px;color:#ccc;transition:transform .2s;display:inline-block}
+.chev.open{transform:rotate(180deg)}
+.signature-block{display:none}
+
+/* ════════════════════════════════════════
+   ESTILOS DE IMPRESIÓN
+════════════════════════════════════════ */
+@media print {
+  @page{size:A4;margin:10mm 12mm}
+  body{background:#fff;font-size:10px}
+  .action-bar,.role-selector,.toggle-group,.chev,.btn-row{display:none!important}
+  .obs-input{display:none!important}
+  .wrap{padding:0;max-width:100%}
+  /* Cabecera */
+  .sisol-header{box-shadow:none;border-radius:4px;border:1px solid #ccc;margin-bottom:6px}
+  .sisol-top{-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:10px 14px}
+  .sisol-org{font-size:13px}
+  .sisol-bottom{display:flex!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Meta */
+  .meta-card{box-shadow:none;border:1px solid #ccc;border-radius:4px;margin-bottom:6px;padding:12px 16px}
+  .ficha-num{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Secciones */
+  .section-card{box-shadow:none;border:1px solid #ccc;border-radius:4px;margin-bottom:5px;page-break-inside:avoid}
+  .section-header{background:#efefef!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;cursor:default;padding:7px 12px}
+  .sec-num{background:#0F6E56!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec-body{display:block!important;padding:0 12px 10px}
+  .item-row{padding:4px 0;grid-template-columns:20px 1fr 90px}
+  .item-text{font-size:10px}
+  .item-norma{display:none}
+  /* Mostrar el valor marcado como texto en impresión */
+  .toggle-group{display:none!important}
+  .item-print-val{display:inline-block!important;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+  .ipv-cumple{background:#E1F5EE;color:#0F6E56;-webkit-print-color-adjust:exact;print-color-adjust:exact;border:1px solid #1D9E75}
+  .ipv-no{background:#FCEBEB;color:#A32D2D;-webkit-print-color-adjust:exact;print-color-adjust:exact;border:1px solid #E24B4A}
+  .ipv-na{background:#FAEEDA;color:#854F0B;-webkit-print-color-adjust:exact;print-color-adjust:exact;border:1px solid #EF9F27}
+  .ipv-vacio{background:#f5f5f5;color:#aaa;border:1px dashed #ccc}
+  /* Observaciones: mostrar si tienen valor */
+  .obs-print{display:block!important;font-size:9px;color:#666;font-style:italic;margin-top:2px;padding-left:2px}
+  /* Resultados */
+  .results-panel{box-shadow:none;border:1px solid #ccc;border-radius:4px;padding:12px 16px;margin-top:5px}
+  .sec-grid{grid-template-columns:repeat(3,1fr);gap:5px}
+  .sec-item{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec-fill,.global-fill,.sec-badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .calificacion{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .global-pct{font-size:30px}
+  /* Firmas */
+  .signature-block{display:block!important;margin-top:18px;padding-top:12px;border-top:2px solid #222}
+  .sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin-top:8px}
+  .sig-box{text-align:center}
+  .sig-line{border-top:1px solid #333;margin-top:52px;padding-top:4px;font-size:9px;color:#111;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .sig-sub{font-size:8px;color:#666;margin-top:1px}
+}
+
+@media(max-width:620px){
+  .meta-grid{grid-template-columns:1fr}
+  .meta-grid.four{grid-template-columns:70px 1fr}
+  .meta-grid.two{grid-template-columns:1fr}
+  .btn-row{justify-content:flex-end}
+  .sec-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- CABECERA SISOL -->
+<div class="sisol-header">
+  <div class="sisol-top">
+    <div class="sisol-logo">
+      <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" width="34" height="34">
+        <rect width="34" height="34" rx="7" fill="#0F6E56"/>
+        <rect x="15.5" y="7" width="3" height="20" rx="1.5" fill="#fff"/>
+        <rect x="7" y="15.5" width="20" height="3" rx="1.5" fill="#fff"/>
+        <circle cx="17" cy="17" r="10" stroke="#ffffff" stroke-width="1.2" stroke-opacity=".3" fill="none"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sisol-org">Sistema de Gestión de Servicios de Salud — SISOL</div>
+      <div class="sisol-sub">Municipalidad Metropolitana de Lima</div>
+      <div class="sisol-doc">Instrumento de Supervisión &nbsp;·&nbsp; Tópico de Urgencia &nbsp;·&nbsp; 2025</div>
+    </div>
+  </div>
+  <div class="sisol-bottom">
+    <div class="sisol-meta">53 ítems &nbsp;·&nbsp; 6 secciones &nbsp;·&nbsp; <b>Cumplimiento Sí / No / N/A</b></div>
+    <div class="sisol-meta" id="hora-actual"></div>
+  </div>
+</div>
+
+<!-- BARRA DE ACCIONES -->
+<div class="action-bar">
+  <div class="btn-row">
+    <div class="status-pill" id="status-pill"></div>
+    <button class="btn btn-save" id="btn-save" onclick="guardar()">
+      <svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></svg>
+      Guardar
+    </button>
+    <button class="btn btn-send" id="btn-send" onclick="enviarFormulario()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      Enviar
+    </button>
+    <button class="btn btn-print" id="btn-print" onclick="imprimirYEnviar()">
+      <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+      Imprimir y Enviar
+    </button>
+  </div>
+</div>
+
+<!-- DATOS GENERALES -->
+<div class="meta-card">
+  <div class="card-title">Datos generales de la supervisión</div>
+  <div class="meta-grid four">
+    <div class="field-group">
+      <label>N° Ficha</label>
+      <div class="ficha-num" id="ficha-num">1</div>
+    </div>
+    <div class="field-group">
+      <label>Establecimiento de salud</label>
+      <input type="text" id="establecimiento" placeholder="Nombre del establecimiento">
+    </div>
+    <div class="field-group">
+      <label>Servicio evaluado</label>
+      <input type="text" id="servicio" placeholder="Tópico / Urgencia">
+    </div>
+    <div class="field-group">
+      <label>Fecha de supervisión</label>
+      <input type="date" id="fecha">
+    </div>
+  </div>
+  <div class="meta-grid two">
+    <div class="field-group">
+      <label>Nombre del evaluador / DNI</label>
+      <input type="text" id="supervisor" placeholder="Nombre completo y número de DNI">
+    </div>
+    <div class="field-group">
+      <label>Rol del evaluador</label>
+      <div class="role-selector">
+        <button class="role-btn active" onclick="setRole('Supervisor externo',this)">Supervisor</button>
+        <button class="role-btn" onclick="setRole('Personal del tópico',this)">Personal del tópico</button>
+        <button class="role-btn" onclick="setRole('Director médico',this)">Director médico</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECCIONES -->
+<div id="sections"></div>
+
+<!-- PANEL DE RESULTADOS -->
+<div class="results-panel">
+  <div class="res-title">Resultados de la supervisión</div>
+  <div class="global-row">
+    <div id="global-pct" class="global-pct">—</div>
+    <div class="global-info">
+      <div class="global-lbl">porcentaje de cumplimiento global</div>
+      <div class="calificacion" id="calificacion">Sin datos aún</div>
+    </div>
+  </div>
+  <div class="global-bar"><div class="global-fill" id="gfill" style="width:0%"></div></div>
+  <div class="sec-grid" id="sec-grid"></div>
+
+  <!-- FIRMAS solo al imprimir -->
+  <div class="signature-block">
+    <div style="font-size:11px;font-weight:700;color:#222;text-transform:uppercase;letter-spacing:.05em">Firmas y sellos</div>
+    <div class="sig-grid">
+      <div class="sig-box"><div class="sig-line">Responsable del servicio</div><div class="sig-sub">Nombre · DNI · Firma y Sello</div></div>
+      <div class="sig-box"><div class="sig-line">Supervisor</div><div class="sig-sub">Nombre · DNI · Firma y Sello</div></div>
+      <div class="sig-box"><div class="sig-line">Director médico</div><div class="sig-sub">Nombre · DNI · CMP · Firma y Sello</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjXERNFtfn4FynNQkRVonz-gSfSVF8l2ykdKeF_7h-znrlJ97OLNqASStMsK1BbkW4/exec";
+const STORAGE_KEY = "sisol_supervision_state";
+const FICHA_KEY   = "sisol_ficha_correlativo";
+
+const SECTIONS=[
+  {id:"s1",title:"Personal de salud",items:[
+    {n:1,text:"El personal cumple el horario y cronograma publicado.",norma:"DS N°013-2006-SA Art.32,38 / RS N°141-2015-SUSALUD/S / DS N°27-2015-SA"},
+    {n:2,text:"El personal que atiende exhibe el título (profesional y/o especialista) y colegiatura.",norma:"DS N°013-2006-SA Art.39-47 / DS N°27-2015-SA / DS N°031-2014-SA"},
+    {n:3,text:"El personal posee habilidad(es) profesional(es) vigente(s).",norma:""},
+    {n:4,text:"El personal está identificado (fotocheck o credencial personal).",norma:""},
+    {n:5,text:"El personal cuenta con currículum vitae documentado.",norma:""},
+    {n:6,text:"El personal cuenta con certificado de salud.",norma:""},
+    {n:7,text:"El personal cuenta con carnet de vacunación Hep. B, antitetánica, Covid-19.",norma:""},
+    {n:8,text:"El personal posee el uniforme(s) limpio(s).",norma:"RS N°141-2015-SUSALUD/S"}
+  ]},
+  {id:"s2",title:"Infraestructura",items:[
+    {n:9,text:"Cuenta con vías de acceso y flujos de circulación que faciliten el ingreso y desplazamiento en caso de emergencia.",norma:"DS N°013-2006-SA / RS N°141-2015-SUSALUD/S / DS N°27-2015-SA / DS N°31-2014-SA"},
+    {n:10,text:"Cuenta con el área mínima según servicio y normativa vigente (sala de proceso, estación de trabajo, vestidor y/o SSHH).",norma:"NTS N°113-MINSA/DGIEM-V01"},
+    {n:11,text:"Cuenta con señalizaciones de seguridad según la normativa vigente.",norma:"DS N°013-2006-SA Art.29 / RM N°045-2015/MINSA / Ley N°29783"},
+    {n:12,text:"Posee luces de emergencia y extintores operativos.",norma:""},
+    {n:13,text:"Posee instalación, mantenimiento y lectura del pozo a tierra.",norma:"RM N°045-2015/MINSA 6.2.3.9; 6.2.4"}
+  ]},
+  {id:"s3",title:"Equipamiento",items:[
+    {n:14,text:"Aspirador de secreciones rodable.",norma:"RS N°141-2015-SUSALUD/S / NTS N°113-MINSA/DGIEM-V01"},
+    {n:15,text:"Balanza digital con tallímetro.",norma:""},
+    {n:16,text:"Biombo de acero inoxidable de 2 cuerpos.",norma:""},
+    {n:17,text:"Coche de paro equipado.",norma:""},
+    {n:18,text:"Desfibrilador externo automático (DEA).",norma:""},
+    {n:19,text:"Desfibrilador manual.",norma:""},
+    {n:20,text:"Monitor de funciones vitales de 5 parámetros.",norma:""},
+    {n:21,text:"Nebulizador (oxígeno con manómetro).",norma:""},
+    {n:22,text:"Pulsioxímetro.",norma:""},
+    {n:23,text:"Balón de oxígeno.",norma:""},
+    {n:24,text:"Nebulizador eléctrico.",norma:""},
+    {n:25,text:"Otros equipos requeridos.",norma:""}
+  ]},
+  {id:"s4",title:"Seguridad del paciente",items:[
+    {n:26,text:"No desconectan las alarmas de los equipos de monitoreo por desconocimiento del manejo.",norma:"DS N°163-2020-MINSA"},
+    {n:27,text:"El personal está capacitado para utilizar los equipos biomédicos del área.",norma:"DS N°163-2020-MINSA"},
+    {n:28,text:"El personal de emergencia ha sido capacitado en los últimos 12 meses en temas propios según competencias.",norma:"Ley General de Salud N°26842"},
+    {n:29,text:"El ambiente garantiza la privacidad del paciente durante la atención.",norma:"DS N°013-2006-SA Art.50 / DS N°27-2015-SA"},
+    {n:30,text:"El personal conoce el protocolo de atención en caso de una situación de emergencia.",norma:"Ley General de Salud N°26842"},
+    {n:31,text:"Se han establecido mecanismos para el traslado oportuno de pacientes en situación de emergencia.",norma:"Ley General de Salud N°26842"},
+    {n:32,text:"Cuenta con maletín de urgencias equipado para atención dentro de la IPRESS.",norma:"Ley General de Salud N°26842"},
+    {n:33,text:"Los insumos se almacenan de acuerdo a buenas prácticas de almacenamiento y recomendaciones del fabricante.",norma:"RM N°132-2015-MINSA"},
+    {n:34,text:"Realizan control de fecha de vencimiento de medicamentos periódicamente, semaforización y kardex actualizado.",norma:"RM N°132-2015-MINSA"},
+    {n:35,text:"El personal conoce el protocolo para la eliminación de medicamentos vencidos.",norma:"RD N°060-94-DG-DIGEMID"},
+    {n:36,text:"El coche de paro está a cargo de enfermería con verificaciones cotidianas de stock y operatividad.",norma:"RM N°552-2007/MINSA NTS N°057-MINSA/DIGEMID-V.01 / RM N°585-99-SA/DM"}
+  ]},
+  {id:"s5",title:"Bioseguridad y residuos sólidos",items:[
+    {n:37,text:"El personal posee y utiliza EPP adecuados (gorro, lentes, guantes, mascarilla, mandil, etc.) según el tipo de riesgo.",norma:"RM N°107-2021/MINSA / RM N°456-2020-MINSA – NTS N°161-MINSA/2020/DGAIN"},
+    {n:38,text:"Cuenta con insumos para la higiene de manos (papel toalla, jabón líquido o alcohol gel).",norma:""},
+    {n:39,text:"Cuenta con insumos de limpieza y desinfección según nivel de contaminación (hipoclorito 0.5% o 1%, amonio cuaternario, alcohol 70%, etc.).",norma:""},
+    {n:40,text:"Cuenta con recipientes rotulados para residuos biocontaminados, comunes y especiales.",norma:"RM N°1295-2018-MINSA: NTS N°144-MINSA/2018/DIGESA / RS N°141-2015-SUSALUD/S / DS N°031-2014-SA"},
+    {n:41,text:"Cuenta con recipientes rígidos para residuos punzocortantes llenados en menos de 3/4 de su capacidad.",norma:""},
+    {n:42,text:"Cuenta con bolsas de polietileno de baja densidad (50.8 micras) de colores rojo, negro y amarillo.",norma:""},
+    {n:43,text:"El personal segrega los residuos sólidos adecuadamente.",norma:""}
+  ]},
+  {id:"s6",title:"Gestión documentaria",items:[
+    {n:44,text:"El equipamiento cuenta con registros de instalación, certificados de calidad y calibración.",norma:"RS N°141-2015-SUSALUD/S"},
+    {n:45,text:"Utiliza guías o manuales de procedimientos (física o virtual) según el tipo de prestación.",norma:"DS N°013-2006-SA Art.5 y 42 / DS N°27-2015-SA"},
+    {n:46,text:"Posee protocolo de procesos en caso de emergencia según el tipo de paciente.",norma:""},
+    {n:47,text:"Posee registro de atenciones (datos del paciente, profesional, exámenes, procedimientos, resultados).",norma:"DS N°013-2006-SA Art.32,90 / RS N°141-2015-SUSALUD/S"},
+    {n:48,text:"Posee Plan de Mantenimiento de Equipos Biomédicos y registro de los mismos.",norma:"DS N°013-2006-SA Art.32 / RS N°141-2015-SUSALUD/S"},
+    {n:49,text:"Brindan información al paciente sobre los requisitos previos del procedimiento a realizar.",norma:"RS N°141-2015-SUSALUD/S"},
+    {n:50,text:"Registra los eventos adversos (ESAIS, reacciones adversas medicamentosas, caídas, etc.).",norma:"DS N°013-2006-SA Art.96 / RM N°519-2006/MINSA"},
+    {n:51,text:"Registra accidentes laborales.",norma:"DS N°013-2006-SA Art.96 / RM N°519-2006/MINSA"},
+    {n:52,text:"Poseen insumos y materiales vigentes con sistema de seguimiento de ingreso y vencimiento (Kardex u otro).",norma:"RGG N°105-2018-GG-SISOL/MML / DS N°031-2014-SA"},
+    {n:53,text:"Poseen formatos de consentimiento informado para procedimientos realizados en el tópico (cuando sea necesario).",norma:"DS N°027-2015-SA / Ley N°29414 / Ley General de Salud N°26842"}
+  ]}
+];
+
+/* ══════════════════════════════
+   ESTADO GLOBAL
+══════════════════════════════ */
+let state={}, role='Supervisor externo';
+SECTIONS.forEach(s=>s.items.forEach((it,i)=>{state[s.id+'_'+i]=null;}));
+
+/* ══════════════════════════════
+   NÚMERO CORRELATIVO (localStorage permanente)
+══════════════════════════════ */
+function getFichaNum(){
+  const n=parseInt(localStorage.getItem(FICHA_KEY)||'1');
+  return isNaN(n)?1:n;
+}
+function setFichaNum(n){ localStorage.setItem(FICHA_KEY,n); }
+function renderFichaNum(){
+  document.getElementById('ficha-num').textContent=getFichaNum();
+}
+
+/* ══════════════════════════════
+   AUTOGUARDADO (localStorage permanente)
+══════════════════════════════ */
+function saveLocal(){
+  const snap={
+    establecimiento:document.getElementById('establecimiento').value,
+    servicio:document.getElementById('servicio').value,
+    fecha:document.getElementById('fecha').value,
+    supervisor:document.getElementById('supervisor').value,
+    role,
+    state:{...state},
+    obs:{}
+  };
+  SECTIONS.forEach(sec=>sec.items.forEach((it,i)=>{
+    const el=document.getElementById('obs_'+sec.id+'_'+i);
+    if(el&&el.value.trim()) snap.obs[sec.id+'_'+i]=el.value.trim();
+  }));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(snap));
+}
+
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const snap=JSON.parse(raw);
+    if(snap.establecimiento) document.getElementById('establecimiento').value=snap.establecimiento;
+    if(snap.servicio) document.getElementById('servicio').value=snap.servicio;
+    if(snap.fecha) document.getElementById('fecha').value=snap.fecha;
+    if(snap.supervisor) document.getElementById('supervisor').value=snap.supervisor;
+    if(snap.role){ role=snap.role; document.querySelectorAll('.role-btn').forEach(b=>{b.classList.toggle('active',b.textContent.trim()===role.split(' ')[0]);});}
+    if(snap.state){
+      Object.assign(state,snap.state);
+      // Repintar botones
+      SECTIONS.forEach(sec=>sec.items.forEach((it,i)=>{
+        const v=state[sec.id+'_'+i];
+        const row=document.getElementById('row_'+sec.id+'_'+i);
+        if(!row||v===null) return;
+        row.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+        if(v===true) row.querySelector('.tb.yes').classList.add('active');
+        else if(v===false){ row.querySelector('.tb.no').classList.add('active'); document.getElementById('obs_'+sec.id+'_'+i).style.display='block';}
+        else if(v==='na') row.querySelector('.tb.na').classList.add('active');
+        // Actualizar etiqueta de impresión
+        updatePrintVal(sec.id,i,v);
+      }));
+    }
+    if(snap.obs){
+      Object.entries(snap.obs).forEach(([k,v])=>{
+        const el=document.getElementById('obs_'+k);
+        if(el){el.value=v;el.style.display='block';}
+        const pr=document.getElementById('obs_print_'+k);
+        if(pr){pr.textContent='Obs: '+v;pr.style.display='block';}
+      });
+    }
+  }catch(e){}
+}
+
+function clearLocal(){
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+/* ══════════════════════════════
+   HORA
+══════════════════════════════ */
+(function(){
+  const el=document.getElementById('hora-actual');
+  function tick(){el.textContent=new Date().toLocaleString('es-PE',{dateStyle:'long',timeStyle:'short'});}
+  tick(); setInterval(tick,60000);
+})();
+
+/* ══════════════════════════════
+   ROL
+══════════════════════════════ */
+function setRole(r,btn){
+  role=r;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  saveLocal();
+}
+
+/* ══════════════════════════════
+   CONSTRUIR SECCIONES
+══════════════════════════════ */
+function buildSections(){
+  const cont=document.getElementById('sections');
+  SECTIONS.forEach((sec,si)=>{
+    const card=document.createElement('div');
+    card.className='section-card';
+    card.innerHTML=`
+      <div class="section-header" onclick="toggleSec('${sec.id}')">
+        <div class="section-header-left">
+          <div class="sec-num">${si+1}</div>
+          <span class="sec-title">${sec.title}</span>
+          <span class="sec-count">&nbsp;(${sec.items.length} ítems)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="sec-badge" id="badge_${sec.id}" style="display:none"></span>
+          <span class="chev" id="chev_${sec.id}">▼</span>
+        </div>
+      </div>
+      <div class="sec-body" id="body_${sec.id}">
+        ${sec.items.map((item,i)=>`
+          <div class="item-row" id="row_${sec.id}_${i}">
+            <span class="item-num">${item.n}.</span>
+            <div style="flex:1">
+              <div class="item-text">${item.text}</div>
+              ${item.norma?`<div class="item-norma">${item.norma}</div>`:''}
+              <span class="item-print-val ipv-vacio" id="ipv_${sec.id}_${i}" style="display:none">—</span>
+              <div class="obs-print" id="obs_print_${sec.id}_${i}" style="display:none"></div>
+            </div>
+            <div class="toggle-group">
+              <button class="tb yes" onclick="setItem('${sec.id}',${i},true,this)">Sí</button>
+              <button class="tb no" onclick="setItem('${sec.id}',${i},false,this)">No</button>
+              <button class="tb na" onclick="setItem('${sec.id}',${i},'na',this)">N/A</button>
+            </div>
+          </div>
+          <div class="obs-area"><textarea class="obs-input" id="obs_${sec.id}_${i}" rows="1" placeholder="Observación..." oninput="obsChange('${sec.id}',${i},this)"></textarea></div>
+        `).join('')}
+      </div>`;
+    cont.appendChild(card);
+  });
+  updateResults();
+}
+
+function obsChange(secId,i,el){
+  el.style.height='auto'; el.style.height=el.scrollHeight+'px';
+  const pr=document.getElementById('obs_print_'+secId+'_'+i);
+  if(pr){ pr.textContent=el.value.trim()?'Obs: '+el.value.trim():''; pr.style.display=el.value.trim()?'block':'none'; }
+  saveLocal();
+}
+
+/* ══════════════════════════════
+   ETIQUETA VISIBLE EN IMPRESIÓN
+══════════════════════════════ */
+function updatePrintVal(secId,i,val){
+  const el=document.getElementById('ipv_'+secId+'_'+i);
+  if(!el) return;
+  el.style.display='inline-block';
+  el.className='item-print-val';
+  if(val===true){ el.classList.add('ipv-cumple'); el.textContent='CUMPLE'; }
+  else if(val===false){ el.classList.add('ipv-no'); el.textContent='NO CUMPLE'; }
+  else if(val==='na'){ el.classList.add('ipv-na'); el.textContent='N/A'; }
+  else{ el.classList.add('ipv-vacio'); el.textContent='—'; }
+}
+
+/* ══════════════════════════════
+   SETITEM
+══════════════════════════════ */
+function toggleSec(id){
+  document.getElementById('body_'+id).classList.toggle('open');
+  document.getElementById('chev_'+id).classList.toggle('open');
+}
+
+function setItem(secId,i,val,btn){
+  state[secId+'_'+i]=val;
+  document.getElementById('row_'+secId+'_'+i).querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const obs=document.getElementById('obs_'+secId+'_'+i);
+  obs.style.display=val===false?'block':'none';
+  if(val!==false){ obs.value=''; const pr=document.getElementById('obs_print_'+secId+'_'+i); if(pr){pr.textContent='';pr.style.display='none';} }
+  updatePrintVal(secId,i,val);
+  updateResults();
+  saveLocal();
+}
+
+/* ══════════════════════════════
+   CÁLCULOS
+══════════════════════════════ */
+function calcSec(id,total){
+  let yes=0,app=0;
+  for(let i=0;i<total;i++){const v=state[id+'_'+i];if(v===null||v==='na')continue;app++;if(v===true)yes++;}
+  return app===0?null:Math.round(yes/app*100);
+}
+function calcGlobal(){
+  let yes=0,app=0;
+  Object.values(state).forEach(v=>{if(v===null||v==='na')return;app++;if(v===true)yes++;});
+  return app===0?null:Math.round(yes/app*100);
+}
+function colorOf(pct){
+  if(pct===null) return{bg:'#f0f0f0',text:'#999',fill:'#ccc'};
+  if(pct>=80) return{bg:'#E1F5EE',text:'#0F6E56',fill:'#1D9E75'};
+  if(pct>=60) return{bg:'#FAEEDA',text:'#854F0B',fill:'#EF9F27'};
+  if(pct>=40) return{bg:'#FFF3CD',text:'#856404',fill:'#BA7517'};
+  return{bg:'#FCEBEB',text:'#A32D2D',fill:'#E24B4A'};
+}
+function calText(pct){
+  if(pct===null) return 'Sin datos aún';
+  if(pct<20) return 'Muy bajo (< 20%)';
+  if(pct<40) return 'Bajo (20% – 40%)';
+  if(pct<60) return 'Moderado (40% – 60%)';
+  if(pct<80) return 'Alto (60% – 80%)';
+  return 'Muy alto (> 80%)';
+}
+
+function updateResults(){
+  SECTIONS.forEach(sec=>{
+    const pct=calcSec(sec.id,sec.items.length);
+    const badge=document.getElementById('badge_'+sec.id);
+    if(pct!==null){
+      badge.style.display='inline'; badge.textContent=pct+'%';
+      const cl=colorOf(pct);
+      badge.style.background=cl.bg; badge.style.color=cl.text; badge.style.border='1px solid '+cl.fill;
+    }
+  });
+  const g=calcGlobal(),cl=colorOf(g);
+  const gEl=document.getElementById('global-pct');
+  gEl.textContent=g!==null?g+'%':'—'; gEl.style.color=cl.fill;
+  document.getElementById('gfill').style.width=(g||0)+'%';
+  document.getElementById('gfill').style.background=cl.fill;
+  const calEl=document.getElementById('calificacion');
+  calEl.textContent=calText(g); calEl.style.background=cl.bg; calEl.style.color=cl.text; calEl.style.borderColor=cl.fill;
+  document.getElementById('sec-grid').innerHTML=SECTIONS.map(sec=>{
+    const pct=calcSec(sec.id,sec.items.length),cl=colorOf(pct);
+    return`<div class="sec-item"><div class="sec-item-title">${sec.title}</div>
+      <div class="sec-item-row"><span class="sec-pct" style="color:${cl.fill}">${pct!==null?pct+'%':'—'}</span>
+      <div class="sec-bar"><div class="sec-fill" style="width:${pct||0}%;background:${cl.fill}"></div></div></div></div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════
+   CONSTRUIR PAYLOAD COMPLETO
+══════════════════════════════ */
+function buildPayload(){
+  const fichaNum=getFichaNum();
+  const p={
+    ficha_num: fichaNum,
+    timestamp: new Date().toISOString(),
+    establecimiento: document.getElementById('establecimiento').value,
+    servicio: document.getElementById('servicio').value,
+    fecha: document.getElementById('fecha').value,
+    evaluador: document.getElementById('supervisor').value,
+    rol: role,
+    cumplimiento_global_pct: calcGlobal()!==null?(calcGlobal()+'%'):'—',
+    calificacion: calText(calcGlobal())
+  };
+  // Porcentaje por sección
+  SECTIONS.forEach(sec=>{
+    const pct=calcSec(sec.id,sec.items.length);
+    p['%_'+sec.title]=pct!==null?(pct+'%'):'—';
+  });
+  // Detalle de cada ítem
+  SECTIONS.forEach(sec=>{
+    sec.items.forEach((item,i)=>{
+      const v=state[sec.id+'_'+i];
+      p['item_'+item.n+'_'+item.text.substring(0,40)]=v===true?'CUMPLE':v===false?'NO CUMPLE':v==='na'?'NO APLICA':'SIN MARCAR';
+      const obs=document.getElementById('obs_'+sec.id+'_'+i);
+      if(obs&&obs.value.trim()) p['obs_'+item.n]=obs.value.trim();
+    });
+  });
+  return p;
+}
+
+/* ══════════════════════════════
+   ENVÍO A GOOGLE SHEETS
+══════════════════════════════ */
+async function postToSheets(){
+  const payload=buildPayload();
+  try {
+    await fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    return true;
+  } catch(e) {
+    // Fallback GET con datos como parámetro
+    const encoded=encodeURIComponent(JSON.stringify(payload));
+    await fetch(APPS_SCRIPT_URL+'?data='+encoded,{mode:'no-cors'});
+    return true;
+  }
+}
+
+/* ══════════════════════════════
+   PILLS DE ESTADO
+══════════════════════════════ */
+function showPill(type,text,autohide){
+  const el=document.getElementById('status-pill');
+  el.className='status-pill '+type; el.textContent=text;
+  if(autohide) setTimeout(()=>{el.className='status-pill';},5000);
+}
+
+/* ══════════════════════════════
+   LIMPIAR Y AVANZAR FICHA
+══════════════════════════════ */
+function avanzarFicha(){
+  // Incrementar correlativo
+  const next=getFichaNum()+1;
+  setFichaNum(next);
+  // Limpiar estado
+  SECTIONS.forEach(s=>s.items.forEach((it,i)=>{state[s.id+'_'+i]=null;}));
+  // Limpiar UI
+  SECTIONS.forEach(sec=>sec.items.forEach((it,i)=>{
+    const row=document.getElementById('row_'+sec.id+'_'+i);
+    if(row) row.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+    const obs=document.getElementById('obs_'+sec.id+'_'+i);
+    if(obs){obs.value='';obs.style.display='none';}
+    const pr=document.getElementById('obs_print_'+sec.id+'_'+i);
+    if(pr){pr.textContent='';pr.style.display='none';}
+    updatePrintVal(sec.id,i,null);
+  }));
+  document.getElementById('establecimiento').value='';
+  document.getElementById('servicio').value='';
+  document.getElementById('fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('supervisor').value='';
+  clearLocal();
+  renderFichaNum();
+  updateResults();
+}
+
+/* ══════════════════════════════
+   BOTÓN GUARDAR (solo local)
+══════════════════════════════ */
+async function guardar(){
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true;
+  showPill('info','Guardando localmente...',false);
+  saveLocal();
+  showPill('ok','Guardado localmente. Los datos se mantienen al cerrar el navegador.',true);
+  btn.disabled=false;
+}
+
+/* ══════════════════════════════
+   BOTÓN ENVIAR (Sheets + avanza ficha)
+══════════════════════════════ */
+async function enviarFormulario(){
+  const btn=document.getElementById('btn-send');
+  btn.disabled=true;
+  showPill('info','Enviando a Google Sheets...',false);
+  try{
+    await postToSheets();
+    showPill('ok','Ficha #'+getFichaNum()+' enviada correctamente. Se inicia la ficha #'+(getFichaNum()+1)+'.',true);
+    avanzarFicha();
+  }catch(e){
+    showPill('err','Error al enviar. Verifica tu conexión e inténtalo de nuevo.',true);
+  }
+  btn.disabled=false;
+}
+
+/* ══════════════════════════════
+   BOTÓN IMPRIMIR Y ENVIAR
+══════════════════════════════ */
+async function imprimirYEnviar(){
+  const btn=document.getElementById('btn-print');
+  btn.disabled=true;
+  showPill('info','Enviando a Sheets y preparando impresión...',false);
+  // Abrir todas las secciones
+  SECTIONS.forEach(sec=>{
+    const body=document.getElementById('body_'+sec.id);
+    const chev=document.getElementById('chev_'+sec.id);
+    if(!body.classList.contains('open')){body.classList.add('open');chev.classList.add('open');}
+  });
+  // Enviar a Sheets
+  let sendOk=false;
+  try{ await postToSheets(); sendOk=true; }catch(e){}
+  // Avanzar ficha
+  const fichaAnterior=getFichaNum();
+  avanzarFicha();
+  setTimeout(()=>{
+    window.print();
+    showPill(sendOk?'ok':'err',
+      sendOk?'Ficha #'+fichaAnterior+' impresa y enviada. Nueva ficha: #'+getFichaNum()+'.':'Impreso, pero no se pudo enviar a Sheets. Verifica tu conexión.',
+      true);
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg> Imprimir y Enviar';
+  },700);
+}
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+document.getElementById('fecha').value=new Date().toISOString().split('T')[0];
+renderFichaNum();
+buildSections();
+loadLocal();
+toggleSec('s1');
+// Autoguardar en cada cambio de campo
+['establecimiento','servicio','fecha','supervisor'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',saveLocal);
+});
+</script>
+</body>
+</html>
